@@ -205,7 +205,7 @@ function ArtworkCard({ art, index }) {
         </WishlistBtn>
 
         <CardOverlay color={art.color} $visible={hovered}>
-          <OverlayBtn color={art.color}>View Artworks</OverlayBtn>
+          <OverlayBtn color={art.color}>View Artwork</OverlayBtn>
         </CardOverlay>
       </CardImage>
 
