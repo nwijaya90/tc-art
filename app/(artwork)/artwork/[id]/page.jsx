@@ -176,9 +176,6 @@ function Magnifier({ src, color, lensSize = 160, zoom = 2.5, height = 500 }) {
         />
       )}
 
-      <ViewInRoomBtn onClick={(e) => e.stopPropagation()}>
-        🏠 View in a Room
-      </ViewInRoomBtn>
       <ZoomHint>🔍 Hover · Click to expand</ZoomHint>
     </MainImageWrapper>
   );
@@ -429,6 +426,9 @@ export default function ArtworkDetailPage() {
               </Thumbnail>
             ))}
           </ThumbnailStrip>
+          <ViewInRoomBtn onClick={(e) => e.stopPropagation()}>
+            🏠 View in a Room
+          </ViewInRoomBtn>
         </ImagePanel>
 
         {/* RIGHT */}

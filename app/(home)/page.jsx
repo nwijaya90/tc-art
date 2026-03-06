@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   PageWrapper,
   HeroSection,
@@ -232,7 +233,7 @@ export default function HomePage() {
   const [search, setSearch] = useState("");
   const [heroIdx, setHeroIdx] = useState(0);
   const [hoveredArtist, setHoveredArtist] = useState(null);
-
+  const router = useRouter();
   useEffect(() => {
     const t = setInterval(
       () => setHeroIdx((i) => (i + 1) % heroColors.length),
@@ -274,7 +275,9 @@ export default function HomePage() {
           </HeroDesc>
 
           <HeroCTA>
-            <BtnPrimary>Explore Gallery →</BtnPrimary>
+            <BtnPrimary onClick={() => router.push("/gallery")}>
+              Explore Gallery →
+            </BtnPrimary>
             <BtnOutline>Meet Artists</BtnOutline>
           </HeroCTA>
 

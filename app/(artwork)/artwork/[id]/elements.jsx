@@ -145,8 +145,8 @@ export const ZoomHint = styled.div`
 
 export const ViewInRoomBtn = styled.button`
   position: absolute;
-  bottom: 16px;
-  left: 16px;
+  bottom: 116px;
+  left: 5px;
   background: rgba(255, 255, 255, 0.92);
   border: none;
   border-radius: 20px;
