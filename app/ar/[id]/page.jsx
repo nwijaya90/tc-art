@@ -1,214 +1,425 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Image from "next/image";
-import {
-  ARPage,
-  TopBar,
-  BackBtn,
-  TopTitle,
-  TopSubtitle,
-  TopRight,
-  ModelViewerWrapper,
-  FallbackWrapper,
-  FallbackImage,
-  FallbackOverlay,
-  FallbackBadge,
-  FallbackDot,
-  BottomPanel,
-  ArtworkInfo,
-  ArtworkInfoTitle,
-  ArtworkInfoMeta,
-  ARButton,
-  ARButtonSecondary,
-  ComingSoonBadge,
-  LoadingWrapper,
-  Spinner,
-  LoadingText,
-  DesktopWarning,
-  DesktopIcon,
-  DesktopTitle,
-  DesktopDesc,
-  DesktopBackBtn,
-} from "./elements";
 
-// ─── MOCK DATA (nanti dari API) ───────────────────────────────
+// ─── MOCK DATA ────────────────────────────────────────────────
 const ARTWORKS = {
   1: {
     title: "Crimson Reverie",
     artist: "Layla Moreira",
     image: "/images/art-1.avif",
-    glbUrl: null,
   },
   2: {
     title: "Azure Depths",
     artist: "Bima Santoso",
     image: "/images/art-2.avif",
-    glbUrl: null,
   },
   3: {
     title: "Golden Meridian",
     artist: "Sari Dewi",
     image: "/images/art-3.avif",
-    glbUrl: null,
   },
   4: {
     title: "Verdant Whisper",
     artist: "Eko Prasetyo",
     image: "/images/art-4.avif",
-    glbUrl: null,
   },
 };
 
-// ─── AR PAGE ─────────────────────────────────────────────────
 const ARViewPage = () => {
   const router = useRouter();
   const params = useParams();
-  const [isMobile, setIsMobile] = useState(null);
-  const [modelViewerReady, setModelViewerReady] = useState(false);
-  const modelRef = useRef(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
 
-  const artworkId = params?.id;
-  const artwork = ARTWORKS[artworkId] || ARTWORKS[1];
+  const artwork = ARTWORKS[params?.id] || ARTWORKS[1];
 
-  // ── Detect device ──
+  const [pos, setPos] = useState({ x: 80, y: 160 });
+  const [size, setSize] = useState({ w: 220, h: 220 });
+  const [cameraReady, setCameraReady] = useState(false);
+  const [cameraError, setCameraError] = useState(false);
+
+  const dragRef = useRef(null);
+  const resizeRef = useRef(null);
+
+  // ── Start camera ──
   useEffect(() => {
-    const mobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-    setIsMobile(mobile);
+    const startCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false,
+        });
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+          setCameraReady(true);
+        }
+      } catch (err) {
+        console.error("Camera error:", err);
+        setCameraError(true);
+      }
+    };
+    startCamera();
+    return () => {
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+    };
   }, []);
 
-  // ── Load model-viewer script (only on mobile) ──
-  useEffect(() => {
-    if (!isMobile) return;
+  // ── Drag ──
+  const onDragStart = useCallback(
+    (e) => {
+      e.preventDefault();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      dragRef.current = {
+        startX: clientX,
+        startY: clientY,
+        startPosX: pos.x,
+        startPosY: pos.y,
+      };
 
-    const script = document.createElement("script");
-    script.type = "module";
-    script.src =
-      "https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js";
-    script.onload = () => setModelViewerReady(true);
-    document.head.appendChild(script);
+      const onMove = (ev) => {
+        if (!dragRef.current) return;
+        const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+        const cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+        setPos({
+          x: dragRef.current.startPosX + (cx - dragRef.current.startX),
+          y: dragRef.current.startPosY + (cy - dragRef.current.startY),
+        });
+      };
+      const onEnd = () => {
+        dragRef.current = null;
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("touchmove", onMove);
+        window.removeEventListener("mouseup", onEnd);
+        window.removeEventListener("touchend", onEnd);
+      };
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("touchmove", onMove, { passive: false });
+      window.addEventListener("mouseup", onEnd);
+      window.addEventListener("touchend", onEnd);
+    },
+    [pos],
+  );
 
-    return () => {
-      document.head.removeChild(script);
-    };
-  }, [isMobile]);
+  // ── Resize ──
+  const onResizeStart = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      resizeRef.current = {
+        startX: clientX,
+        startY: clientY,
+        startW: size.w,
+        startH: size.h,
+      };
 
-  const handleActivateAR = () => {
-    if (modelRef.current) {
-      modelRef.current.activateAR();
-    }
-  };
+      const onMove = (ev) => {
+        if (!resizeRef.current) return;
+        ev.preventDefault();
+        const cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+        const cy = ev.touches ? ev.touches[0].clientY : ev.clientY;
+        const delta =
+          (cx - resizeRef.current.startX + (cy - resizeRef.current.startY)) / 2;
+        setSize({
+          w: Math.max(100, Math.min(400, resizeRef.current.startW + delta)),
+          h: Math.max(100, Math.min(400, resizeRef.current.startH + delta)),
+        });
+      };
+      const onEnd = () => {
+        resizeRef.current = null;
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("touchmove", onMove);
+        window.removeEventListener("mouseup", onEnd);
+        window.removeEventListener("touchend", onEnd);
+      };
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("touchmove", onMove, { passive: false });
+      window.addEventListener("mouseup", onEnd);
+      window.addEventListener("touchend", onEnd);
+    },
+    [size],
+  );
 
-  // ── Loading state ──
-  if (isMobile === null) {
+  // ── Camera error ──
+  if (cameraError) {
     return (
-      <ARPage>
-        <LoadingWrapper>
-          <Spinner />
-          <LoadingText>Loading AR experience...</LoadingText>
-        </LoadingWrapper>
-      </ARPage>
-    );
-  }
-
-  // ── Desktop: show warning ──
-  if (!isMobile) {
-    return (
-      <ARPage>
-        <TopBar>
-          <BackBtn onClick={() => router.back()}>←</BackBtn>
-          <div>
-            <TopTitle>View in AR</TopTitle>
-          </div>
-          <TopRight />
-        </TopBar>
-        <DesktopWarning>
-          <DesktopIcon>📱</DesktopIcon>
-          <DesktopTitle>Open on your phone</DesktopTitle>
-          <DesktopDesc>
-            AR experience is only available on mobile devices. Scan the QR code
-            on the artwork page or open this link on your phone.
-          </DesktopDesc>
-          <DesktopBackBtn onClick={() => router.back()}>
-            ← Go Back
-          </DesktopBackBtn>
-        </DesktopWarning>
-      </ARPage>
-    );
-  }
-
-  // ── Mobile: AR view ──
-  return (
-    <ARPage>
-      {/* Top bar */}
-      <TopBar>
-        <BackBtn onClick={() => router.back()}>←</BackBtn>
-        <div>
-          <TopTitle>{artwork.title}</TopTitle>
-          <TopSubtitle>{artwork.artist}</TopSubtitle>
+      <div
+        style={{
+          width: "100vw",
+          height: "100dvh",
+          background: "#0a0a0a",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 32,
+          textAlign: "center",
+          gap: 16,
+        }}
+      >
+        <div style={{ fontSize: 56 }}>📷</div>
+        <div
+          style={{
+            fontFamily: "var(--font-playfair)",
+            fontSize: 22,
+            fontWeight: 800,
+            color: "#fff",
+          }}
+        >
+          Camera access denied
         </div>
-        <TopRight />
-      </TopBar>
+        <div
+          style={{
+            fontSize: 13,
+            color: "rgba(255,255,255,0.4)",
+            lineHeight: 1.7,
+          }}
+        >
+          Please allow camera access in your browser settings and try again.
+        </div>
+        <button
+          onClick={() => router.back()}
+          style={{
+            marginTop: 8,
+            padding: "14px 32px",
+            borderRadius: 50,
+            border: "1.5px solid rgba(255,255,255,0.2)",
+            background: "transparent",
+            color: "#fff",
+            fontSize: 14,
+            fontWeight: 600,
+            fontFamily: "var(--font-outfit)",
+            cursor: "pointer",
+          }}
+        >
+          ← Go Back
+        </button>
+      </div>
+    );
+  }
 
-      {/* Model viewer or fallback */}
-      {artwork.glbUrl && modelViewerReady ? (
-        // ── Has GLB: show 3D model ──
-        <ModelViewerWrapper>
-          <model-viewer
-            ref={modelRef}
-            src={artwork.glbUrl}
-            ar
-            ar-modes="webxr scene-viewer quick-look"
-            camera-controls
-            auto-rotate
-            shadow-intensity="1"
-            exposure="1"
-            style={{ width: "100%", height: "100%" }}
+  return (
+    <div
+      style={{
+        width: "100vw",
+        height: "100dvh",
+        overflow: "hidden",
+        background: "#000",
+        position: "relative",
+      }}
+    >
+      {/* Camera feed */}
+      <video
+        ref={videoRef}
+        autoPlay
+        playsInline
+        muted
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          position: "absolute",
+          inset: 0,
+        }}
+      />
+
+      {/* Loading */}
+      {!cameraReady && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "#000",
+            zIndex: 5,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 16,
+          }}
+        >
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          <div
+            style={{
+              width: 40,
+              height: 40,
+              borderRadius: "50%",
+              border: "2px solid rgba(255,255,255,0.1)",
+              borderTopColor: "#E84545",
+              animation: "spin 0.8s linear infinite",
+            }}
           />
-        </ModelViewerWrapper>
-      ) : (
-        // ── No GLB yet: show 2D preview ──
-        <FallbackWrapper>
-          <FallbackImage>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={artwork.image} alt={artwork.title} />
-          </FallbackImage>
-          <FallbackOverlay />
-          <FallbackBadge>
-            <FallbackDot />
-            Preview Mode
-          </FallbackBadge>
-        </FallbackWrapper>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)" }}>
+            Starting camera...
+          </div>
+        </div>
       )}
 
-      {/* Bottom panel */}
-      <BottomPanel>
-        <ArtworkInfo>
-          <ArtworkInfoTitle>{artwork.title}</ArtworkInfoTitle>
-          <ArtworkInfoMeta>{artwork.artist}</ArtworkInfoMeta>
-        </ArtworkInfo>
+      {/* Draggable artwork */}
+      {cameraReady && (
+        <div
+          onMouseDown={onDragStart}
+          onTouchStart={onDragStart}
+          style={{
+            position: "absolute",
+            left: pos.x,
+            top: pos.y,
+            width: size.w,
+            height: size.h,
+            cursor: "grab",
+            userSelect: "none",
+            touchAction: "none",
+            zIndex: 10,
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={artwork.image}
+            alt={artwork.title}
+            draggable={false}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              borderRadius: 8,
+              display: "block",
+              pointerEvents: "none",
+              boxShadow:
+                "0 8px 40px rgba(0,0,0,0.6), 0 0 0 2px rgba(255,255,255,0.15)",
+            }}
+          />
+          {/* Frame border */}
+          <div
+            style={{
+              position: "absolute",
+              inset: -4,
+              border: "4px solid rgba(255,255,255,0.25)",
+              borderRadius: 10,
+              pointerEvents: "none",
+            }}
+          />
+          {/* Resize handle */}
+          <div
+            onMouseDown={onResizeStart}
+            onTouchStart={onResizeStart}
+            style={{
+              position: "absolute",
+              bottom: -12,
+              right: -12,
+              width: 30,
+              height: 30,
+              borderRadius: "50%",
+              background: "#fff",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.4)",
+              cursor: "se-resize",
+              touchAction: "none",
+              zIndex: 20,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 14,
+              color: "#333",
+            }}
+          >
+            ⤡
+          </div>
+        </div>
+      )}
 
-        {artwork.glbUrl ? (
-          // ── Has GLB: show AR button ──
-          <ARButton onClick={handleActivateAR}>
-            <span>📷</span> View in Your Room
-          </ARButton>
-        ) : (
-          // ── No GLB: coming soon ──
-          <>
-            <ARButton disabled>
-              <span>📷</span> View in Your Room
-            </ARButton>
-            <ComingSoonBadge>✦ AR COMING SOON</ComingSoonBadge>
-          </>
-        )}
+      {/* Top bar */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 20,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "16px 20px",
+          paddingTop: "calc(16px + env(safe-area-inset-top))",
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.6), transparent)",
+        }}
+      >
+        <button
+          onClick={() => router.back()}
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            background: "rgba(255,255,255,0.15)",
+            border: "1px solid rgba(255,255,255,0.2)",
+            color: "#fff",
+            fontSize: 18,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          ←
+        </button>
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: 15,
+              fontWeight: 700,
+              color: "#fff",
+            }}
+          >
+            {artwork.title}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)" }}>
+            {artwork.artist}
+          </div>
+        </div>
+        <div style={{ width: 40 }} />
+      </div>
 
-        <ARButtonSecondary onClick={() => router.back()}>
-          ← Back to Artwork
-        </ARButtonSecondary>
-      </BottomPanel>
-    </ARPage>
+      {/* Bottom hint */}
+      {cameraReady && (
+        <div
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 20,
+            padding: "20px",
+            paddingBottom: "calc(20px + env(safe-area-inset-bottom))",
+            background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent)",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              background: "rgba(0,0,0,0.4)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              borderRadius: 50,
+              padding: "8px 20px",
+              fontSize: 12,
+              color: "rgba(255,255,255,0.7)",
+            }}
+          >
+            ✋ Drag to move · ⤡ Corner to resize
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 

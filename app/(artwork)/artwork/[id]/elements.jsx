@@ -72,6 +72,10 @@ export const ImagePanel = styled.div`
   gap: 16px;
   position: sticky;
   top: 88px;
+
+  @media (max-width: 768px) {
+    position: static;
+  }
 `;
 
 export const MainImageWrapper = styled.div`
@@ -145,8 +149,8 @@ export const ZoomHint = styled.div`
 
 export const ViewInRoomBtn = styled.button`
   position: absolute;
-  bottom: 116px;
-  left: 5px;
+  bottom: 106px;
+  left: 16px;
   background: rgba(255, 255, 255, 0.92);
   border: none;
   border-radius: 20px;
@@ -165,6 +169,10 @@ export const ViewInRoomBtn = styled.button`
   &:hover {
     background: #fff;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+  @media (max-width: 768px) {
+    bottom: 2863px;
+    z-index: 99999;
   }
 `;
 
@@ -614,6 +622,17 @@ export const RelatedCardPrice = styled.div`
 `;
 
 // ─── FULLSCREEN MODAL ────────────────────────────────────────
+export const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.93);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+`;
 
 export const ModalCloseBtn = styled.button`
   position: fixed;
@@ -643,7 +662,6 @@ export const ModalImageBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 30%;
 `;
 
 export const ModalThumbnailStrip = styled.div`
@@ -668,13 +686,4 @@ export const ModalThumb = styled.div`
     opacity: 1;
     border-color: ${({ $color }) => $color};
   }
-`;
-export const ModalOverlay = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.93);
-  z-index: 9999;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
 `;
