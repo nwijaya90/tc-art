@@ -67,7 +67,9 @@ import {
   ModalThumbnailStrip,
   ModalThumb,
 } from "./elements";
+import Modal from "@mui/material/Modal";
 
+// ─── MOCK DATA ────────────────────────────────────────────────
 const artwork = {
   id: 1,
   title: "Crimson Reverie",
@@ -131,8 +133,9 @@ const related = [
   },
 ];
 
-// ─── MAGNIFIER ───────────────────────────────────────────────
-function Magnifier({ src, color, lensSize = 160, zoom = 2.5, height = 500 }) {
+// ─── REUSABLE COMPONENTS (tidak butuh state dari page) ────────
+
+const Magnifier = ({ src, color, lensSize = 160, zoom = 2.5 }) => {
   const wrapperRef = useRef(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [show, setShow] = useState(false);
@@ -144,6 +147,7 @@ function Magnifier({ src, color, lensSize = 160, zoom = 2.5, height = 500 }) {
   }, []);
 
   const w = wrapperRef.current?.offsetWidth || 600;
+  const h = wrapperRef.current?.offsetHeight || 500;
 
   return (
     <MainImageWrapper
@@ -161,7 +165,6 @@ function Magnifier({ src, color, lensSize = 160, zoom = 2.5, height = 500 }) {
         sizes="55vw"
         priority
       />
-
       {show && (
         <MagnifierLens
           $x={pos.x}
@@ -169,34 +172,28 @@ function Magnifier({ src, color, lensSize = 160, zoom = 2.5, height = 500 }) {
           $lensSize={lensSize}
           style={{
             backgroundImage: `url(${src})`,
-            backgroundSize: `${w * zoom}px ${height * zoom}px`,
+            backgroundSize: `${w * zoom}px ${h * zoom}px`,
             backgroundPosition: `${-(pos.x * zoom) + lensSize / 2}px ${-(pos.y * zoom) + lensSize / 2}px`,
             backgroundRepeat: "no-repeat",
           }}
         />
       )}
-
       <ZoomHint>🔍 Hover · Click to expand</ZoomHint>
     </MainImageWrapper>
   );
-}
+};
 
-// ─── FULLSCREEN MODAL ────────────────────────────────────────
-function Modal({ images, activeIndex, setActiveIndex, color, onClose }) {
+const ImageModal = ({
+  images,
+  activeIndex,
+
+  onClose,
+}) => {
   const imgRef = useRef(null);
   const wrapperRef = useRef(null);
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [show, setShow] = useState(false);
-  const onImgLoad = useCallback(() => {
-    if (imgRef.current) {
-      sizeRef.current = {
-        w: imgRef.current.offsetWidth,
-        h: imgRef.current.offsetHeight,
-      };
-    }
-  }, []);
-
   const sizeRef = useRef({ w: 800, h: 600 });
+  const [show, setShow] = useState(false);
+
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -209,24 +206,12 @@ function Modal({ images, activeIndex, setActiveIndex, color, onClose }) {
     };
   }, [onClose]);
 
-  const onMove = useCallback((e) => {
-    const r = wrapperRef.current?.getBoundingClientRect();
-    if (!r) return;
-    setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
-  }, []);
-
-  const LENS = 200;
-  const ZOOM = 3;
-  const { w, h } = sizeRef.current;
-
   return (
     <ModalOverlay onClick={onClose}>
       <ModalCloseBtn onClick={onClose}>✕</ModalCloseBtn>
-
       <ModalImageBox
         ref={wrapperRef}
         onClick={(e) => e.stopPropagation()}
-        onMouseMove={onMove}
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
         style={{ position: "relative", cursor: "crosshair" }}
@@ -236,7 +221,6 @@ function Modal({ images, activeIndex, setActiveIndex, color, onClose }) {
           ref={imgRef}
           src={images[activeIndex]}
           alt="Fullscreen artwork"
-          onLoad={onImgLoad}
           style={{
             maxWidth: "88vw",
             maxHeight: "75vh",
@@ -246,66 +230,15 @@ function Modal({ images, activeIndex, setActiveIndex, color, onClose }) {
             borderRadius: 16,
           }}
         />
-
-        {/* Magnifier lens */}
-        {show && (
-          <div
-            style={{
-              position: "absolute",
-              left: pos.x,
-              top: pos.y,
-              width: LENS,
-              height: LENS,
-              borderRadius: "50%",
-              border: "3px solid rgba(255,255,255,0.9)",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-              transform: "translate(-50%, -50%)",
-              pointerEvents: "none",
-              overflow: "hidden",
-              zIndex: 10,
-              backgroundImage: `url(${images[activeIndex]})`,
-              backgroundSize: `${w * ZOOM}px ${h * ZOOM}px`,
-              backgroundPosition: `${-(pos.x * ZOOM) + LENS / 2}px ${-(pos.y * ZOOM) + LENS / 2}px`,
-              backgroundRepeat: "no-repeat",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: "50%",
-                background:
-                  "radial-gradient(circle at 35% 35%, rgba(255,255,255,0.12), transparent 60%)",
-              }}
-            />
-          </div>
-        )}
       </ModalImageBox>
-
-      <ModalThumbnailStrip onClick={(e) => e.stopPropagation()}>
-        {images.map((img, i) => (
-          <ModalThumb
-            key={i}
-            $active={activeIndex === i}
-            $color={color}
-            onClick={() => setActiveIndex(i)}
-          >
-            <Image
-              src={img}
-              alt={`Thumb ${i + 1}`}
-              fill
-              style={{ objectFit: "cover" }}
-              sizes="64px"
-            />
-          </ModalThumb>
-        ))}
-      </ModalThumbnailStrip>
+      <ModalThumbnailStrip
+        onClick={(e) => e.stopPropagation()}
+      ></ModalThumbnailStrip>
     </ModalOverlay>
   );
-}
+};
 
-// ─── ACCORDION ───────────────────────────────────────────────
-function Accordion({ art }) {
+const Accordion = ({ art }) => {
   const [openId, setOpenId] = useState("about");
 
   const items = [
@@ -369,23 +302,148 @@ function Accordion({ art }) {
       ))}
     </AccordionWrapper>
   );
-}
+};
 
-// ─── PAGE ────────────────────────────────────────────────────
-export default function ArtworkDetailPage() {
+// ─── PAGE ─────────────────────────────────────────────────────
+const ArtworkDetailPage = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [added, setAdded] = useState(false);
-  const [modal, setModal] = useState(false);
+  const [imageModal, setImageModal] = useState(false);
+  const [viewInRoom, setViewInRoom] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const arUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/ar/${artwork.id}`
+      : "";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(arUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+  const isMobile = () =>
+    /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
+  const handleViewInRoom = () => {
+    if (isMobile()) {
+      window.location.href = `/ar/${artwork.id}`;
+    } else {
+      setViewInRoom(true);
+    }
+  };
+
+  const handleAddToCart = () => {
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   return (
     <PageWrapper>
-      {modal && (
-        <Modal
+      <Modal
+        open={viewInRoom}
+        onClose={() => setViewInRoom(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            background: "#fff",
+            borderRadius: 24,
+            padding: "32px 40px",
+            textAlign: "center",
+            maxWidth: 400,
+            width: "90vw",
+            outline: "none",
+          }}
+        >
+          <div style={{ fontSize: 40, marginBottom: 12 }}>📱</div>
+          <div
+            style={{
+              fontFamily: "var(--font-playfair)",
+              fontSize: 22,
+              fontWeight: 800,
+              color: "#111",
+              marginBottom: 8,
+            }}
+          >
+            View in Your Space
+          </div>
+          <div
+            style={{
+              fontSize: 13,
+              color: "#999",
+              marginBottom: 24,
+              lineHeight: 1.6,
+            }}
+          >
+            Open this link on your phone or tablet to place this artwork in your
+            room using AR.
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: 8,
+              background: "#f5f5f3",
+              borderRadius: 12,
+              padding: "10px 14px",
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                fontSize: 12,
+                color: "#888",
+                flex: 1,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                textAlign: "left",
+              }}
+            >
+              {arUrl}
+            </div>
+            <button
+              onClick={handleCopy}
+              style={{
+                background: copied ? "#2A9D8F" : "#111",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                padding: "6px 14px",
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: "pointer",
+                flexShrink: 0,
+                fontFamily: "var(--font-outfit)",
+              }}
+            >
+              {copied ? "✓ Copied!" : "Copy"}
+            </button>
+          </div>
+
+          <div
+            style={{
+              fontSize: 11,
+              color: "#ccc",
+              marginTop: 16,
+              lineHeight: 1.6,
+            }}
+          >
+            Works best on iOS Safari & Android Chrome
+          </div>
+        </div>
+      </Modal>
+
+      {imageModal && (
+        <ImageModal
           images={artwork.images}
           activeIndex={activeIndex}
-          setActiveIndex={setActiveIndex}
-          color={artwork.color}
-          onClose={() => setModal(false)}
+          onClose={() => setImageModal(false)}
         />
       )}
 
@@ -402,7 +460,10 @@ export default function ArtworkDetailPage() {
       <DetailGrid>
         {/* LEFT */}
         <ImagePanel>
-          <div onClick={() => setModal(true)} style={{ cursor: "zoom-in" }}>
+          <div
+            onClick={() => setImageModal(true)}
+            style={{ cursor: "zoom-in" }}
+          >
             <Magnifier
               src={artwork.images[activeIndex]}
               color={artwork.color}
@@ -426,7 +487,7 @@ export default function ArtworkDetailPage() {
               </Thumbnail>
             ))}
           </ThumbnailStrip>
-          <ViewInRoomBtn onClick={(e) => e.stopPropagation()}>
+          <ViewInRoomBtn onClick={handleViewInRoom}>
             🏠 View in a Room
           </ViewInRoomBtn>
         </ImagePanel>
@@ -472,12 +533,7 @@ export default function ArtworkDetailPage() {
             ✈️ Free shipping · Certificate of authenticity
           </ShippingNote>
 
-          <BtnAddToCart
-            onClick={() => {
-              setAdded(true);
-              setTimeout(() => setAdded(false), 2000);
-            }}
-          >
+          <BtnAddToCart onClick={handleAddToCart}>
             {added ? "✓ Added to Cart!" : "Add to Cart"}
           </BtnAddToCart>
           <BtnMakeOffer>Make an Offer</BtnMakeOffer>
@@ -541,4 +597,6 @@ export default function ArtworkDetailPage() {
       </RelatedSection>
     </PageWrapper>
   );
-}
+};
+
+export default ArtworkDetailPage;

@@ -676,4 +676,5 @@ export const ModalOverlay = styled.div`
   z-index: 9999;
   display: grid;
   place-items: center;
+  overflow: hidden;
 `;
