@@ -183,16 +183,14 @@ const Magnifier = ({ src, color, lensSize = 160, zoom = 2.5 }) => {
   );
 };
 
-const ImageModal = ({
-  images,
-  activeIndex,
-
-  onClose,
-}) => {
+const ImageModal = ({ images, activeIndex, onClose }) => {
   const imgRef = useRef(null);
   const wrapperRef = useRef(null);
   const sizeRef = useRef({ w: 800, h: 600 });
+  const [pos, setPos] = useState({ x: 0, y: 0 });
   const [show, setShow] = useState(false);
+  const LENS = 200;
+  const ZOOM = 3;
 
   useEffect(() => {
     const onKey = (e) => {
@@ -206,12 +204,30 @@ const ImageModal = ({
     };
   }, [onClose]);
 
+  const onImgLoad = useCallback(() => {
+    if (imgRef.current) {
+      sizeRef.current = {
+        w: imgRef.current.offsetWidth,
+        h: imgRef.current.offsetHeight,
+      };
+    }
+  }, []);
+
+  const onMove = useCallback((e) => {
+    const r = wrapperRef.current?.getBoundingClientRect();
+    if (!r) return;
+    setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
+  }, []);
+
+  const { w, h } = sizeRef.current;
+
   return (
     <ModalOverlay onClick={onClose}>
       <ModalCloseBtn onClick={onClose}>✕</ModalCloseBtn>
       <ModalImageBox
         ref={wrapperRef}
         onClick={(e) => e.stopPropagation()}
+        onMouseMove={onMove}
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
         style={{ position: "relative", cursor: "crosshair" }}
@@ -221,6 +237,7 @@ const ImageModal = ({
           ref={imgRef}
           src={images[activeIndex]}
           alt="Fullscreen artwork"
+          onLoad={onImgLoad}
           style={{
             maxWidth: "88vw",
             maxHeight: "75vh",
