@@ -287,23 +287,75 @@ const ARViewPage = () => {
               width: "100%",
               height: "100%",
               objectFit: "cover",
-              borderRadius: 8,
+              borderRadius: 4,
               display: "block",
               pointerEvents: "none",
-              boxShadow:
-                "0 8px 40px rgba(0,0,0,0.6), 0 0 0 2px rgba(255,255,255,0.15)",
+              position: "relative",
+              zIndex: 2,
             }}
           />
-          {/* Frame border */}
+          {/* Rustic wood frame */}
           <div
             style={{
               position: "absolute",
-              inset: -4,
-              border: "4px solid rgba(255,255,255,0.25)",
-              borderRadius: 10,
+              inset: -18,
+              borderRadius: 6,
               pointerEvents: "none",
+              background:
+                "linear-gradient(135deg, #8B5E3C 0%, #6B3F1F 20%, #A06B3B 35%, #7A4A22 50%, #9B6235 65%, #6B3F1F 80%, #8B5E3C 100%)",
+              boxShadow:
+                "0 12px 48px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 0 rgba(0,0,0,0.3)",
+              zIndex: 1,
             }}
-          />
+          >
+            {/* Wood grain lines */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: 6,
+                opacity: 0.25,
+                background: `repeating-linear-gradient(
+                92deg,
+                transparent 0px, transparent 3px,
+                rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 4px,
+                transparent 4px, transparent 9px,
+                rgba(255,255,255,0.08) 9px, rgba(255,255,255,0.08) 10px
+              )`,
+              }}
+            />
+            {/* Inner bevel shadow */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 14,
+                borderRadius: 2,
+                boxShadow:
+                  "inset 0 2px 6px rgba(0,0,0,0.5), inset 0 -1px 3px rgba(255,255,255,0.1)",
+                pointerEvents: "none",
+              }}
+            />
+            {/* Corner accents */}
+            {[
+              { top: 4, left: 4 },
+              { top: 4, right: 4 },
+              { bottom: 4, left: 4 },
+              { bottom: 4, right: 4 },
+            ].map((style, i) => (
+              <div
+                key={i}
+                style={{
+                  position: "absolute",
+                  ...style,
+                  width: 12,
+                  height: 12,
+                  borderRadius: 2,
+                  background: "rgba(0,0,0,0.25)",
+                  boxShadow: "inset 0 1px 2px rgba(255,255,255,0.1)",
+                }}
+              />
+            ))}
+          </div>
           {/* Resize handle */}
           <div
             onMouseDown={onResizeStart}
