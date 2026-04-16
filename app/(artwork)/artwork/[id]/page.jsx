@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
+import useCartStore from "@/lib/cartStore";
 import {
   PageWrapper,
   Breadcrumb,
@@ -323,6 +324,12 @@ const Accordion = ({ art }) => {
 
 // ─── PAGE ─────────────────────────────────────────────────────
 const ArtworkDetailPage = () => {
+  const addItem = useCartStore((state) => state.addItem);
+  const items = useCartStore((state) => state.items);
+
+  useEffect(() => {
+    console.log("items changed:", items);
+  }, [items]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [added, setAdded] = useState(false);
   const [imageModal, setImageModal] = useState(false);
@@ -350,6 +357,14 @@ const ArtworkDetailPage = () => {
   };
 
   const handleAddToCart = () => {
+    addItem({
+      id: artwork.id,
+      title: artwork.title,
+      artist: artwork.artist,
+      price: artwork.price,
+      image: artwork.images[0],
+      color: artwork.color,
+    });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };

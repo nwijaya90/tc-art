@@ -72,6 +72,47 @@ export const NavActions = styled.div`
   align-items: center;
 `;
 
+// ── Cart button ──
+export const CartBtn = styled(Link)`
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f5f5f3;
+  border: 1.5px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #fff;
+    border-color: var(--color-red);
+    box-shadow: 0 4px 12px rgba(232, 69, 69, 0.15);
+  }
+`;
+
+export const CartBadge = styled.span`
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--color-red), var(--color-orange));
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid #fafaf8;
+  font-family: var(--font-outfit);
+`;
+
 export const BtnOutline = styled.button`
   background: transparent;
   border: 1.5px solid #ddd;
@@ -81,6 +122,7 @@ export const BtnOutline = styled.button`
   font-weight: 600;
   color: #555;
   transition: all 0.2s ease;
+  cursor: pointer;
 
   &:hover {
     border-color: var(--color-red);
@@ -98,6 +140,7 @@ export const BtnPrimary = styled.button`
   color: #fff;
   box-shadow: 0 4px 15px rgba(232, 69, 69, 0.3);
   transition: all 0.2s ease;
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-1px);

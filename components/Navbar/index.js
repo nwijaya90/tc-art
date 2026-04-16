@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import useCartStore from "@/lib/cartStore";
 import {
   Nav,
   LogoWrapper,
@@ -10,6 +12,8 @@ import {
   NavActions,
   BtnOutline,
   BtnPrimary,
+  CartBtn,
+  CartBadge,
 } from "./elements";
 
 const navItems = [
@@ -19,7 +23,9 @@ const navItems = [
   { label: "About", href: "/about" },
 ];
 
-export default function Navbar() {
+const Navbar = () => {
+  const count = useCartStore((state) => state.totalCount);
+
   return (
     <Nav>
       <LogoWrapper href="/">
@@ -36,9 +42,15 @@ export default function Navbar() {
       </NavLinks>
 
       <NavActions>
+        <CartBtn href="/cart">
+          🛒
+          {count > 0 && <CartBadge>{count}</CartBadge>}
+        </CartBtn>
         <BtnOutline>Log in</BtnOutline>
         <BtnPrimary>Sign up</BtnPrimary>
       </NavActions>
     </Nav>
   );
-}
+};
+
+export default Navbar;
