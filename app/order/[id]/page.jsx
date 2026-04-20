@@ -15,6 +15,7 @@ import {
 import useCartStore from "@/lib/cartStore";
 
 import { useEffect } from "react";
+const clearCart = useCartStore((state) => state.clearCart);
 
 export default function OrderPage() {
   const router = useRouter();

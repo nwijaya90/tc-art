@@ -50,7 +50,6 @@ const CheckoutPage = () => {
   const items = useCartStore((state) => state.items);
   const totalPrice = useCartStore((state) => state.totalPrice);
   const totalCount = useCartStore((state) => state.totalCount);
-  const clearCart = useCartStore((state) => state.clearCart);
   // ── Form state ──
   const [formData, setFormData] = useState({
     firstName: "",
