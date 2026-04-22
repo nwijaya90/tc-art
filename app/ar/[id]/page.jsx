@@ -23,7 +23,7 @@ const ARTWORKS = {
   4: {
     title: "Verdant Whisper",
     artist: "Eko Prasetyo",
-    image: "/images/art-4.avif",
+    image: "/images/art-7.avif",
   },
 };
 
