@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   PageWrapper,
   HeroSection,
@@ -90,6 +90,7 @@ const artworks = [
     size: "80 × 100 cm",
     tag: "New",
     color: "#E84545",
+    image: "/images/art-1.avif",
     category: "Abstract",
   },
   {
@@ -102,6 +103,7 @@ const artworks = [
     tag: "Hot",
     color: "#2176AE",
     category: "Landscape",
+    image: "/images/art-2.avif",
   },
   {
     id: 3,
@@ -113,6 +115,7 @@ const artworks = [
     tag: "Featured",
     color: "#F4A261",
     category: "Abstract",
+    image: "/images/art-3.avif",
   },
   {
     id: 4,
@@ -123,6 +126,7 @@ const artworks = [
     size: "40 × 50 cm",
     tag: "Sale",
     color: "#2A9D8F",
+    image: "/images/art-7.avif",
     category: "Nature",
   },
   {
@@ -134,7 +138,8 @@ const artworks = [
     size: "50 × 70 cm",
     tag: "New",
     color: "#7B2D8B",
-    category: "Portrait",
+    category: "Abstract",
+    image: "/images/art-5.avif",
   },
   {
     id: 6,
@@ -145,7 +150,8 @@ const artworks = [
     size: "90 × 110 cm",
     tag: null,
     color: "#C1440E",
-    category: "Abstract",
+    category: "Portrait",
+    image: "/images/art-6.avif",
   },
 ];
 
@@ -189,7 +195,13 @@ function ArtworkCard({ art, index }) {
       onMouseLeave={() => setHovered(false)}
     >
       <CardImage color={art.color}>
-        <CardImageEmoji>🖼</CardImageEmoji>
+        <Image
+          src={art.image}
+          alt={art.title}
+          fill
+          style={{ objectFit: "cover" }}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
         <CardAccentBlur color={art.color} />
 
         {art.tag && <CardTag tag={art.tag}>{art.tag.toUpperCase()}</CardTag>}
@@ -233,7 +245,7 @@ export default function HomePage() {
   const [search, setSearch] = useState("");
   const [heroIdx, setHeroIdx] = useState(0);
   const [hoveredArtist, setHoveredArtist] = useState(null);
-  const router = useRouter();
+
   useEffect(() => {
     const t = setInterval(
       () => setHeroIdx((i) => (i + 1) % heroColors.length),
@@ -275,9 +287,7 @@ export default function HomePage() {
           </HeroDesc>
 
           <HeroCTA>
-            <BtnPrimary onClick={() => router.push("/gallery")}>
-              Explore Gallery →
-            </BtnPrimary>
+            <BtnPrimary>Explore Gallery →</BtnPrimary>
             <BtnOutline>Meet Artists</BtnOutline>
           </HeroCTA>
 
@@ -299,7 +309,13 @@ export default function HomePage() {
         <HeroVisual>
           <HeroCardMain>
             <HeroCardMainImg color={heroColors[heroIdx]}>
-              🖼
+              <Image
+                src="/images/art-1.avif"
+                alt="Featured artwork"
+                fill
+                style={{ objectFit: "cover" }}
+                sizes="320px"
+              />
               <HeroCardBadge>FEATURED</HeroCardBadge>
             </HeroCardMainImg>
             <HeroCardInfo>
@@ -310,7 +326,15 @@ export default function HomePage() {
           </HeroCardMain>
 
           <HeroCardSecondary>
-            <HeroCardSecImg>🎨</HeroCardSecImg>
+            <HeroCardSecImg>
+              <Image
+                src="/images/art-2.avif"
+                alt="Azure Depths"
+                fill
+                style={{ objectFit: "cover" }}
+                sizes="120px"
+              />
+            </HeroCardSecImg>
             <HeroCardSecInfo>
               <HeroCardSecTitle>Azure Depths</HeroCardSecTitle>
               <HeroCardSecPrice>$890</HeroCardSecPrice>
