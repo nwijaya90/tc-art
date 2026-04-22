@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import useCartStore from "@/lib/cartStore";
 import {
@@ -71,32 +72,169 @@ import {
 import Modal from "@mui/material/Modal";
 
 // ─── MOCK DATA ────────────────────────────────────────────────
-const artwork = {
-  id: 1,
-  title: "Crimson Reverie",
-  artist: "Layla Moreira",
-  country: "🇧🇷 Brazil",
-  medium: "Oil on Canvas",
-  category: "Abstract",
-  price: 1250,
-  originalPrice: 1600,
-  size: "80 × 100 × 2 cm",
-  year: 2023,
-  style: "Contemporary",
-  rarity: "One-of-a-kind Artwork",
-  readyToHang: "Yes",
-  frame: "Not Framed",
-  certificate: "Included",
-  shipsFrom: "Brazil",
-  color: "#E84545",
-  tag: "Sale",
-  about: `"Crimson Reverie" explores the tension between stillness and motion — a landscape caught between dusk and dream. Using layered oil glazes, Moreira builds surfaces that shift with changing light, creating a sense of depth that draws the viewer inward.`,
-  images: [
-    "/images/art-1.avif",
-    "/images/art-2.avif",
-    "/images/art-3.avif",
-    "/images/art-4.avif",
-  ],
+const ARTWORKS_DB = {
+  1: {
+    id: 1,
+    title: "Crimson Reverie",
+    artist: "Layla Moreira",
+    country: "🇧🇷 Brazil",
+    medium: "Oil on Canvas",
+    category: "Abstract",
+    price: 1250,
+    originalPrice: 1600,
+    size: "80 × 100 × 2 cm",
+    year: 2023,
+    style: "Contemporary",
+    rarity: "One-of-a-kind Artwork",
+    readyToHang: "Yes",
+    frame: "Not Framed",
+    certificate: "Included",
+    shipsFrom: "Brazil",
+    color: "#E84545",
+    tag: "Sale",
+    about: `"Crimson Reverie" explores the tension between stillness and motion — a landscape caught between dusk and dream. Using layered oil glazes, Moreira builds surfaces that shift with changing light, creating a sense of depth that draws the viewer inward.`,
+    images: [
+      "/images/art-1.avif",
+      "/images/art-1-a.avif",
+      "/images/art-1-b.avif",
+    ],
+  },
+  2: {
+    id: 2,
+    title: "Azure Depths",
+    artist: "Bima Santoso",
+    country: "🇮🇩 Indonesia",
+    medium: "Acrylic",
+    category: "Landscape",
+    price: 890,
+    originalPrice: null,
+    size: "60 × 80 × 2 cm",
+    year: 2024,
+    style: "Contemporary",
+    rarity: "One-of-a-kind Artwork",
+    readyToHang: "Yes",
+    frame: "Not Framed",
+    certificate: "Included",
+    shipsFrom: "Indonesia",
+    color: "#2176AE",
+    tag: "Hot",
+    about: `"Azure Depths" captures the serene beauty of ocean twilight. Santoso's masterful use of acrylic creates layers of depth that mirror the vastness of the sea.`,
+    images: [
+      "/images/art-2.avif",
+      "/images/art-2.avif",
+      "/images/art-2.avif",
+      "/images/art-2.avif",
+    ],
+  },
+  3: {
+    id: 3,
+    title: "Golden Meridian",
+    artist: "Sari Dewi",
+    country: "🇮🇩 Indonesia",
+    medium: "Mixed Media",
+    category: "Abstract",
+    price: 2100,
+    originalPrice: null,
+    size: "100 × 120 × 3 cm",
+    year: 2023,
+    style: "Contemporary",
+    rarity: "One-of-a-kind Artwork",
+    readyToHang: "Yes",
+    frame: "Framed",
+    certificate: "Included",
+    shipsFrom: "Indonesia",
+    color: "#F4A261",
+    tag: "Featured",
+    about: `"Golden Meridian" blends traditional techniques with modern aesthetics. Dewi's mixed media approach creates a rich tapestry of texture and color.`,
+    images: [
+      "/images/art-3.avif",
+      "/images/art-3.avif",
+      "/images/art-3.avif",
+      "/images/art-3.avif",
+    ],
+  },
+  4: {
+    id: 4,
+    title: "Verdant Whisper",
+    artist: "Eko Prasetyo",
+    country: "🇮🇩 Indonesia",
+    medium: "Watercolour",
+    category: "Nature",
+    price: 540,
+    originalPrice: 680,
+    size: "40 × 50 × 2 cm",
+    year: 2024,
+    style: "Impressionist",
+    rarity: "Limited Edition (5/50)",
+    readyToHang: "Yes",
+    frame: "Not Framed",
+    certificate: "Included",
+    shipsFrom: "Indonesia",
+    color: "#2A9D8F",
+    tag: "Sale",
+    about: `"Verdant Whisper" celebrates nature's quiet moments. Prasetyo's delicate watercolour technique brings life to botanical beauty.`,
+    images: [
+      "/images/art-7.avif",
+      "/images/art-7.avif",
+      "/images/art-7.avif",
+      "/images/art-7.avif",
+      "/images/art-7.avif",
+    ],
+  },
+  5: {
+    id: 5,
+    title: "Neon Solitude",
+    artist: "Mira Yuliani",
+    country: "🇮🇩 Indonesia",
+    medium: "Digital Print",
+    category: "Portrait",
+    price: 320,
+    originalPrice: null,
+    size: "50 × 70 × 1 cm",
+    year: 2024,
+    style: "Contemporary",
+    rarity: "Limited Edition (10/100)",
+    readyToHang: "Yes",
+    frame: "Not Framed",
+    certificate: "Included",
+    shipsFrom: "Indonesia",
+    color: "#7B2D8B",
+    tag: "New",
+    about: `"Neon Solitude" explores modern isolation through vibrant digital art. Yuliani's work bridges traditional portraiture with digital innovation.`,
+    images: [
+      "/images/art-5.avif",
+      "/images/art-5.avif",
+      "/images/art-5.avif",
+      "/images/art-5.avif",
+    ],
+  },
+  6: {
+    id: 6,
+    title: "Terracotta Dreams",
+    artist: "Bagas Wibowo",
+    country: "🇮🇩 Indonesia",
+    medium: "Oil on Canvas",
+    category: "Abstract",
+    price: 1780,
+    originalPrice: null,
+    size: "90 × 110 × 2 cm",
+    year: 2023,
+    style: "Contemporary",
+    rarity: "One-of-a-kind Artwork",
+    readyToHang: "Yes",
+    frame: "Not Framed",
+    certificate: "Included",
+    shipsFrom: "Indonesia",
+    color: "#C1440E",
+    tag: null,
+    about: `"Terracotta Dreams" draws inspiration from traditional Indonesian pottery. Wibowo's bold strokes and earthy palette create a powerful visual narrative.`,
+    images: [
+      "/images/art-6.avif",
+      "/images/art-6.avif",
+      "/images/art-6.avif",
+      "/images/art-6.avif",
+    ],
+  },
 };
 
 const related = [
@@ -122,7 +260,7 @@ const related = [
     artist: "Eko Prasetyo",
     price: 540,
     color: "#2A9D8F",
-    image: "/images/art-1.avif",
+    image: "/images/art-7.avif",
   },
   {
     id: 5,
@@ -130,12 +268,11 @@ const related = [
     artist: "Mira Yuliani",
     price: 320,
     color: "#7B2D8B",
-    image: "/images/art-2.avif",
+    image: "/images/art-5.avif",
   },
 ];
 
-// ─── REUSABLE COMPONENTS (tidak butuh state dari page) ────────
-
+// ─── REUSABLE COMPONENTS ──────────────────────────────────────
 const Magnifier = ({ src, color, lensSize = 160, zoom = 2.5 }) => {
   const wrapperRef = useRef(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -185,14 +322,6 @@ const Magnifier = ({ src, color, lensSize = 160, zoom = 2.5 }) => {
 };
 
 const ImageModal = ({ images, activeIndex, onClose }) => {
-  const imgRef = useRef(null);
-  const wrapperRef = useRef(null);
-  const sizeRef = useRef({ w: 800, h: 600 });
-  const [pos, setPos] = useState({ x: 0, y: 0 });
-  const [show, setShow] = useState(false);
-  const LENS = 200;
-  const ZOOM = 3;
-
   useEffect(() => {
     const onKey = (e) => {
       if (e.key === "Escape") onClose();
@@ -205,40 +334,14 @@ const ImageModal = ({ images, activeIndex, onClose }) => {
     };
   }, [onClose]);
 
-  const onImgLoad = useCallback(() => {
-    if (imgRef.current) {
-      sizeRef.current = {
-        w: imgRef.current.offsetWidth,
-        h: imgRef.current.offsetHeight,
-      };
-    }
-  }, []);
-
-  const onMove = useCallback((e) => {
-    const r = wrapperRef.current?.getBoundingClientRect();
-    if (!r) return;
-    setPos({ x: e.clientX - r.left, y: e.clientY - r.top });
-  }, []);
-
-  const { w, h } = sizeRef.current;
-
   return (
     <ModalOverlay onClick={onClose}>
       <ModalCloseBtn onClick={onClose}>✕</ModalCloseBtn>
-      <ModalImageBox
-        ref={wrapperRef}
-        onClick={(e) => e.stopPropagation()}
-        onMouseMove={onMove}
-        onMouseEnter={() => setShow(true)}
-        onMouseLeave={() => setShow(false)}
-        style={{ position: "relative", cursor: "crosshair" }}
-      >
+      <ModalImageBox onClick={(e) => e.stopPropagation()}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          ref={imgRef}
           src={images[activeIndex]}
           alt="Fullscreen artwork"
-          onLoad={onImgLoad}
           style={{
             maxWidth: "88vw",
             maxHeight: "75vh",
@@ -324,17 +427,24 @@ const Accordion = ({ art }) => {
 
 // ─── PAGE ─────────────────────────────────────────────────────
 const ArtworkDetailPage = () => {
-  const addItem = useCartStore((state) => state.addItem);
-  const items = useCartStore((state) => state.items);
+  const params = useParams();
+  const router = useRouter();
+  const artworkId = parseInt(params?.id);
+  const artwork = ARTWORKS_DB[artworkId];
 
-  useEffect(() => {
-    console.log("items changed:", items);
-  }, [items]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [added, setAdded] = useState(false);
   const [imageModal, setImageModal] = useState(false);
   const [viewInRoom, setViewInRoom] = useState(false);
   const [copied, setCopied] = useState(false);
+  const addItem = useCartStore((state) => state.addItem);
+
+  // Redirect jika artwork tidak ada
+  if (!artwork) {
+    router.push("/gallery");
+    return null;
+  }
+
   const arUrl =
     typeof window !== "undefined"
       ? `${window.location.origin}/ar/${artwork.id}`
@@ -345,6 +455,7 @@ const ArtworkDetailPage = () => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
   const isMobile = () =>
     /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
@@ -369,14 +480,14 @@ const ArtworkDetailPage = () => {
     setTimeout(() => setAdded(false), 2000);
   };
 
+  // Filter related artworks (bukan artwork yang sama)
+  const relatedFiltered = related
+    .filter((r) => r.id !== artwork.id)
+    .slice(0, 4);
+
   return (
     <PageWrapper>
-      <Modal
-        open={viewInRoom}
-        onClose={() => setViewInRoom(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+      <Modal open={viewInRoom} onClose={() => setViewInRoom(false)}>
         <div
           style={{
             position: "absolute",
@@ -415,7 +526,6 @@ const ArtworkDetailPage = () => {
             Open this link on your phone or tablet to place this artwork in your
             room using AR.
           </div>
-
           <div
             style={{
               display: "flex",
@@ -457,7 +567,6 @@ const ArtworkDetailPage = () => {
               {copied ? "✓ Copied!" : "Copy"}
             </button>
           </div>
-
           <div
             style={{
               fontSize: 11,
@@ -490,11 +599,10 @@ const ArtworkDetailPage = () => {
       </Breadcrumb>
 
       <DetailGrid>
-        {/* LEFT */}
         <ImagePanel>
           <div
             onClick={() => setImageModal(true)}
-            style={{ cursor: "zoom-in" }}
+            style={{ cursor: "zoom-in", position: "relative" }}
           >
             <Magnifier
               src={artwork.images[activeIndex]}
@@ -524,13 +632,11 @@ const ArtworkDetailPage = () => {
           </ViewInRoomBtn>
         </ImagePanel>
 
-        {/* RIGHT */}
         <InfoPanel>
           <ArtworkTag $color={artwork.color}>
             ✦ {artwork.tag || artwork.category}
           </ArtworkTag>
           <ArtworkTitle>{artwork.title}</ArtworkTitle>
-
           <ArtistRow>
             <ArtistAvatar $color={artwork.color}>👤</ArtistAvatar>
             <div>
@@ -538,9 +644,7 @@ const ArtworkDetailPage = () => {
               <ArtistCountry>{artwork.country}</ArtistCountry>
             </div>
           </ArtistRow>
-
           <Divider />
-
           <PriceRow>
             <Price $color={artwork.color}>
               ${artwork.price.toLocaleString()}
@@ -560,16 +664,13 @@ const ArtworkDetailPage = () => {
               </>
             )}
           </PriceRow>
-
           <ShippingNote>
             ✈️ Free shipping · Certificate of authenticity
           </ShippingNote>
-
           <BtnAddToCart onClick={handleAddToCart}>
             {added ? "✓ Added to Cart!" : "Add to Cart"}
           </BtnAddToCart>
           <BtnMakeOffer>Make an Offer</BtnMakeOffer>
-
           <TrustRow>
             <TrustItem>
               <span>🔒</span>Secure Payment
@@ -581,7 +682,6 @@ const ArtworkDetailPage = () => {
               <span>📜</span>Certificate
             </TrustItem>
           </TrustRow>
-
           <Accordion art={artwork} />
         </InfoPanel>
       </DetailGrid>
@@ -593,8 +693,8 @@ const ArtworkDetailPage = () => {
             <ArtistCardName>{artwork.artist}</ArtistCardName>
             <ArtistCardCountry>{artwork.country}</ArtistCardCountry>
             <ArtistCardBio>
-              Moreira's work captures fleeting emotional states through bold
-              colour and layered texture, inviting the viewer to find their own
+              {artwork.artist.split(" ")[0]}'s work captures emotion and texture
+              through masterful technique, inviting viewers to find their own
               narrative within each piece.
             </ArtistCardBio>
           </ArtistCardInfo>
@@ -605,8 +705,11 @@ const ArtworkDetailPage = () => {
       <RelatedSection>
         <RelatedTitle>You May Also Like</RelatedTitle>
         <RelatedGrid>
-          {related.map((art) => (
-            <RelatedCard key={art.id}>
+          {relatedFiltered.map((art) => (
+            <RelatedCard
+              key={art.id}
+              onClick={() => router.push(`/artwork/${art.id}`)}
+            >
               <RelatedCardImg $color={art.color}>
                 <Image
                   src={art.image}

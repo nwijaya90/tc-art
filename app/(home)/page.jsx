@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import useCartStore from "@/lib/cartStore";
+import { useRouter } from "next/navigation";
+
 import {
   PageWrapper,
   HeroSection,
@@ -183,9 +186,24 @@ const floatingDots = [
 
 // ─── ART CARD COMPONENT ─────────────────────────────────────
 function ArtworkCard({ art, index }) {
+  const addItem = useCartStore((state) => state.addItem);
+  const router = useRouter();
+
   const [liked, setLiked] = useState(false);
   const [hovered, setHovered] = useState(false);
-
+  const [added, setAdded] = useState(false);
+  const handleAddToCart = (artwork) => {
+    addItem({
+      id: artwork.id,
+      title: artwork.title,
+      artist: artwork.artist,
+      price: artwork.price,
+      image: artwork.image, //careful with this, it should be a single image URL for the cart item
+      color: artwork.color,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
   return (
     <CardWrapper
       $index={index}
@@ -218,7 +236,12 @@ function ArtworkCard({ art, index }) {
         </WishlistBtn>
 
         <CardOverlay color={art.color} $visible={hovered}>
-          <OverlayBtn color={art.color}>View Artwork</OverlayBtn>
+          <OverlayBtn
+            onClick={() => router.push(`/artwork/${art.id}`)}
+            color={art.color}
+          >
+            View Artwork
+          </OverlayBtn>
         </CardOverlay>
       </CardImage>
 
@@ -233,7 +256,9 @@ function ArtworkCard({ art, index }) {
           </div>
           <CardPrice color={art.color}>${art.price.toLocaleString()}</CardPrice>
         </CardRow>
-        <CardAddBtn color={art.color}>Add to Cart</CardAddBtn>
+        <CardAddBtn onClick={() => handleAddToCart(art)} color={art.color}>
+          {added ? "Added to Cart" : "Add to Cart"}
+        </CardAddBtn>
       </CardBody>
     </CardWrapper>
   );
@@ -245,6 +270,7 @@ export default function HomePage() {
   const [search, setSearch] = useState("");
   const [heroIdx, setHeroIdx] = useState(0);
   const [hoveredArtist, setHoveredArtist] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     const t = setInterval(
@@ -287,7 +313,9 @@ export default function HomePage() {
           </HeroDesc>
 
           <HeroCTA>
-            <BtnPrimary>Explore Gallery →</BtnPrimary>
+            <BtnPrimary onClick={() => router.push("/gallery")}>
+              Explore Gallery →
+            </BtnPrimary>
             <BtnOutline>Meet Artists</BtnOutline>
           </HeroCTA>
 

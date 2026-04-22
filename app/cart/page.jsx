@@ -99,14 +99,31 @@ const CartPage = () => {
               <CartItem key={item.id}>
                 {/* Image */}
                 <CartItemImage $color={item.color}>
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    style={{ objectFit: "cover" }}
-                    sizes="88px"
-                  />
+                  {item.image && item.image.trim() !== "" ? (
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      style={{ objectFit: "cover" }}
+                      sizes="88px"
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "88px",
+                        height: "88px",
+                        background: "#f0f0f0",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      🖼️
+                    </div>
+                  )}
                 </CartItemImage>
+
+                {console.log(item)}
 
                 {/* Info */}
                 <CartItemInfo>
