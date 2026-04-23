@@ -47,7 +47,7 @@ const ARTISTS = [
     collectors: 180,
     bio: "Contemporary artist exploring emotion through color",
     image: "/images/artist-1.avif",
-    featured: true, // large card
+    featured: true,
   },
   {
     id: 2,
@@ -58,7 +58,7 @@ const ARTISTS = [
     collectors: 142,
     bio: "Landscape painter capturing nature's essence",
     image: "/images/artist-2.avif",
-    wide: true, // wide card
+    wide: true,
   },
   {
     id: 3,
@@ -100,6 +100,48 @@ const ARTISTS = [
     collectors: 134,
     bio: "Abstract painter with bold, earthy palettes",
     image: "/images/artist-6.avif",
+  },
+
+  {
+    id: 7,
+    name: "Andi Saputra",
+    country: "🇮🇩 Indonesia",
+    countryCode: "Indonesia",
+    works: 21,
+    collectors: 150,
+    bio: "Street artist focusing on urban culture",
+    image: "/images/artist-7.avif",
+  },
+  {
+    id: 8,
+    name: "Rina Kurnia",
+    country: "🇮🇩 Indonesia",
+    countryCode: "Indonesia",
+    works: 17,
+    collectors: 120,
+    bio: "Minimalist painter with soft tones",
+    image: "/images/artist-8.avif",
+  },
+  {
+    id: 9,
+    name: "Dewi Lestari",
+    country: "🇮🇩 Indonesia",
+    countryCode: "Indonesia",
+    works: 28,
+    collectors: 210,
+    bio: "Illustrator inspired by folklore",
+    image: "/images/artist-9.avif",
+  },
+  {
+    id: 10,
+    name: "Rizky Pratama",
+    country: "🇮🇩 Indonesia",
+    countryCode: "Indonesia",
+    works: 14,
+    collectors: 90,
+    bio: "Sketch artist exploring daily life",
+    image: "/images/artist-10.avif",
+    wide: true,
   },
 ];
 
