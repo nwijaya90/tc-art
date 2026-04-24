@@ -75,6 +75,8 @@ import Modal from "@mui/material/Modal";
 const ARTWORKS_DB = {
   1: {
     id: 1,
+    artistId: 1,
+    image_artist: "/images/artist-1.avif",
     title: "Crimson Reverie",
     artist: "Layla Moreira",
     country: "🇧🇷 Brazil",
@@ -101,6 +103,8 @@ const ARTWORKS_DB = {
   },
   2: {
     id: 2,
+    artistId: 2,
+    image_artist: "/images/artist-2.avif",
     title: "Azure Depths",
     artist: "Bima Santoso",
     country: "🇮🇩 Indonesia",
@@ -128,6 +132,8 @@ const ARTWORKS_DB = {
   },
   3: {
     id: 3,
+    artistId: 3,
+    image_artist: "/images/artist-3.avif",
     title: "Golden Meridian",
     artist: "Sari Dewi",
     country: "🇮🇩 Indonesia",
@@ -155,6 +161,8 @@ const ARTWORKS_DB = {
   },
   4: {
     id: 4,
+    artistId: 4,
+    image_artist: "/images/artist-4.avif",
     title: "Verdant Whisper",
     artist: "Eko Prasetyo",
     country: "🇮🇩 Indonesia",
@@ -183,6 +191,8 @@ const ARTWORKS_DB = {
   },
   5: {
     id: 5,
+    image_artist: "/images/artist-5.avif",
+    artistId: 5,
     title: "Neon Solitude",
     artist: "Mira Yuliani",
     country: "🇮🇩 Indonesia",
@@ -210,6 +220,8 @@ const ARTWORKS_DB = {
   },
   6: {
     id: 6,
+    artistId: 6,
+    image_artist: "/images/artist-6.avif",
     title: "Terracotta Dreams",
     artist: "Bagas Wibowo",
     country: "🇮🇩 Indonesia",
@@ -688,7 +700,18 @@ const ArtworkDetailPage = () => {
 
       <ArtistSection>
         <ArtistCard>
-          <ArtistCardAvatar $color={artwork.color}>👤</ArtistCardAvatar>
+          <ArtistCardAvatar $color={artwork.color}>
+            <Image
+              src={artwork.image_artist}
+              alt={artwork.artist}
+              width={80}
+              height={80}
+              style={{
+                borderRadius: "20px",
+                objectFit: "cover",
+              }}
+            />
+          </ArtistCardAvatar>
           <ArtistCardInfo>
             <ArtistCardName>{artwork.artist}</ArtistCardName>
             <ArtistCardCountry>{artwork.country}</ArtistCardCountry>
@@ -698,7 +721,11 @@ const ArtworkDetailPage = () => {
               narrative within each piece.
             </ArtistCardBio>
           </ArtistCardInfo>
-          <ArtistCardBtn>View Profile →</ArtistCardBtn>
+          <ArtistCardBtn
+            onClick={() => router.push(`/artist/${artwork.artistId}`)}
+          >
+            View Profile →
+          </ArtistCardBtn>
         </ArtistCard>
       </ArtistSection>
 
