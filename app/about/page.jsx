@@ -72,10 +72,22 @@ const VALUES = [
 ];
 
 const MILESTONES = [
-  { year: "2023", text: "TCart started as a curated pilot to showcase emerging local artists." },
-  { year: "2024", text: "Expanded to international collectors and a multi-country artist catalog." },
-  { year: "2025", text: "Launched richer artist profiles, artwork detail pages, and better checkout UX." },
-  { year: "2026", text: "Focused on end-to-end collection journeys, from discovery to ownership." },
+  {
+    year: "2023",
+    text: "TCart started as a curated pilot to showcase emerging local artists.",
+  },
+  {
+    year: "2024",
+    text: "Expanded to international collectors and a multi-country artist catalog.",
+  },
+  {
+    year: "2025",
+    text: "Launched richer artist profiles, artwork detail pages, and better checkout UX.",
+  },
+  {
+    year: "2026",
+    text: "Focused on end-to-end collection journeys, from discovery to ownership.",
+  },
 ];
 
 const GALLERY_SPOTLIGHT = [
@@ -109,8 +121,8 @@ const AboutPage = () => {
             </HeroTitle>
             <HeroDesc>
               TCart is a curated platform for original art. We make discovering,
-              buying, and collecting artwork feel as seamless as modern commerce,
-              while preserving the emotional value behind every piece.
+              buying, and collecting artwork feel as seamless as modern
+              commerce, while preserving the emotional value behind every piece.
             </HeroDesc>
             <HeroButtons>
               <HeroPrimaryBtn as={Link} href="/gallery">
@@ -141,18 +153,21 @@ const AboutPage = () => {
         <IntroGrid>
           <IntroTextCard>
             <IntroLabel>Our Story</IntroLabel>
-            <IntroHeading>Built to make art discovery feel intentional</IntroHeading>
+            <IntroHeading>
+              Built to make art discovery feel intentional
+            </IntroHeading>
             <IntroParagraph>
-              TCart began with a simple observation: exceptional artworks often get
-              buried in generic marketplaces, while collectors want a more curated,
-              high-context experience. We designed TCart to bridge that gap with a
-              cleaner journey, stronger storytelling, and better trust signals.
+              TCart began with a simple observation: exceptional artworks often
+              get buried in generic marketplaces, while collectors want a more
+              curated, high-context experience. We designed TCart to bridge that
+              gap with a cleaner journey, stronger storytelling, and better
+              trust signals.
             </IntroParagraph>
             <IntroLabel>Our Mission</IntroLabel>
             <IntroParagraph>
-              We help artists grow sustainably and help collectors discover pieces
-              that feel personal. Our mission is to make art commerce intuitive,
-              transparent, and deeply human.
+              We help artists grow sustainably and help collectors discover
+              pieces that feel personal. Our mission is to make art commerce
+              intuitive, transparent, and deeply human.
             </IntroParagraph>
           </IntroTextCard>
 
@@ -160,7 +175,7 @@ const AboutPage = () => {
             <IntroImageCardLarge>
               <IntroImageWrap>
                 <Image
-                  src="/images/artist-3.avif"
+                  src="/images/artist-10.avif"
                   alt="Featured artist portrait"
                   fill
                   style={{ objectFit: "cover" }}
@@ -182,7 +197,7 @@ const AboutPage = () => {
             <IntroImageCardSmall>
               <IntroImageWrap>
                 <Image
-                  src="/images/artist-1.avif"
+                  src="/images/artist-8.avif"
                   alt="Artist in studio style portrait"
                   fill
                   style={{ objectFit: "cover" }}
@@ -241,7 +256,8 @@ const AboutPage = () => {
           <CTAInner>
             <CTATitle>Ready to find your next favorite piece?</CTATitle>
             <CTADesc>
-              Explore curated artists or jump straight into the latest gallery drops.
+              Explore curated artists or jump straight into the latest gallery
+              drops.
             </CTADesc>
             <CTAButtons>
               <PrimaryBtn as={Link} href="/artists">
