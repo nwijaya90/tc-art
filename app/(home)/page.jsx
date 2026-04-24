@@ -159,19 +159,58 @@ const artworks = [
 ];
 
 const artists = [
-  { name: "Layla Moreira", works: 24, country: "🇧🇷 Brazil", color: "#E84545" },
   {
-    name: "Bima Santoso",
-    works: 18,
-    country: "🇮🇩 Indonesia",
-    color: "#2176AE",
+    id: 1,
+    name: "Layla Moreira",
+    country: "🇧🇷 Brazil",
+    countryCode: "Brazil",
+    works: 24,
+    collectors: 180,
+    bio: "Contemporary artist exploring emotion through color",
+    image: "/images/artist-1.avif",
+    featured: true,
   },
-  { name: "Sari Dewi", works: 31, country: "🇮🇩 Indonesia", color: "#F4A261" },
   {
-    name: "Mira Yuliani",
-    works: 15,
+    id: 2,
+    name: "Bima Santoso",
     country: "🇮🇩 Indonesia",
-    color: "#7B2D8B",
+    countryCode: "Indonesia",
+    works: 18,
+    collectors: 142,
+    bio: "Landscape painter capturing nature's essence",
+    image: "/images/artist-2.avif",
+    wide: true,
+  },
+  {
+    id: 3,
+    name: "Hana Kim",
+    country: "🇰🇷 South Korea",
+    countryCode: "South Korea",
+    works: 27,
+    collectors: 210,
+    bio: "Modern illustrator with bold characters",
+    image: "/images/artist-3.avif",
+  },
+  {
+    id: 4,
+    name: "Kenji Tanaka",
+    country: "🇯🇵 Japan",
+    countryCode: "Japan",
+    works: 22,
+    collectors: 165,
+    bio: "Ink artist focused on minimalism",
+    image: "/images/artist-4.avif",
+  },
+  {
+    id: 5,
+    name: "Emily Carter",
+    country: "🇺🇸 USA",
+    countryCode: "USA",
+    works: 30,
+    collectors: 250,
+    bio: "Abstract painter with vibrant palette",
+    image: "/images/artist-5.avif",
+    wide: true,
   },
 ];
 
@@ -316,7 +355,9 @@ export default function HomePage() {
             <BtnPrimary onClick={() => router.push("/gallery")}>
               Explore Gallery →
             </BtnPrimary>
-            <BtnOutline>Meet Artists</BtnOutline>
+            <BtnOutline onClick={() => router.push("/artists")}>
+              Meet Artists
+            </BtnOutline>
           </HeroCTA>
 
           <HeroStats>
@@ -436,7 +477,9 @@ export default function HomePage() {
                 Creators
               </SectionTitle>
             </div>
-            <SectionLink>View all artists →</SectionLink>
+            <SectionLink onClick={() => router.push("/artists")}>
+              View all artists →
+            </SectionLink>
           </SectionHeader>
 
           <ArtistsGrid>
@@ -448,8 +491,17 @@ export default function HomePage() {
                 color={artist.color}
                 onMouseEnter={() => setHoveredArtist(artist.name)}
                 onMouseLeave={() => setHoveredArtist(null)}
+                onClick={() => router.push(`/artist/${artist.id}`)}
               >
-                <ArtistAvatar color={artist.color}>👤</ArtistAvatar>
+                <ArtistAvatar color={artist.color}>
+                  <Image
+                    src={artist.image}
+                    alt={artist.name}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  />
+                </ArtistAvatar>
                 <ArtistName>{artist.name}</ArtistName>
                 <ArtistCountry>{artist.country}</ArtistCountry>
                 <ArtistWorksTag color={artist.color}>
